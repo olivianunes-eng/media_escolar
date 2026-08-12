@@ -36,10 +36,16 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
   final TextEditingController nota2Controller = TextEditingController();
   final TextEditingController nota3Controller = TextEditingController();
   final TextEditingController nota4Controller = TextEditingController();
+  final TextEditingController frequenciaController = TextEditingController();
 
   String nomeAluno= '';
   String situacao='';
+  String motivo = '';
   double media = 0;
+  double maiorNota = 0;
+  double menorNota = 0;
+  double pontosFaltantes = 0;
+  double frequencia = 0;
 
   void calcularMedia(){
     String nome = nomeController.text.trim();
@@ -56,9 +62,12 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
     double? nota4 = double.tryParse(
         nota4Controller.text.replaceAll(",", "."),
     );
+    double? frequenciaAluno = double.tryParse(
+    frequenciaController.text.replaceAll(",", "."),
+    );
 
     if(
-      nome.isEmpty || nota1 == null || nota2 == null || nota3 == null || nota4 == null
+      nome.isEmpty || nota1 == null || nota2 == null || nota3 == null || nota4 == null || frequenciaAluno == null
       ){
         mostrarMensagem('Preencha todos os campos corretamente');
         return;
@@ -71,22 +80,48 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
       return;
     }
 
+    if (frequenciaAluno < 0 || frequenciaAluno > 100) {
+      mostrarMensagem('A frequência deve estar entre 0 e 100%.');
+      return;
+    }
+
     double mediaCalculada = (nota1 + nota2 + nota3 + nota4) /4;
+    double maiorNotaCalculada = [nota1, nota2, nota3, nota4].reduce((a, b) => a > b ? a : b,
+    );
+    double menorNotaCalculada = [nota1, nota2, nota3, nota4].reduce((a, b) => a < b ? a : b,
+    );
+    double pontosFaltantesCalculados = 0;
+
+    if (mediaCalculada < 7) {
+      pontosFaltantesCalculados = 7 - mediaCalculada;
+    }
 
     String situacaoCalculada;
 
-    if(mediaCalculada >= 7){
-      situacaoCalculada = 'APROVADO';
-    }else if(mediaCalculada >= 5){
-      situacaoCalculada = 'RECUPERAÇÃO';
-    }else{
-      situacaoCalculada = 'REPROVADO';
-    }
+    if (frequenciaAluno < 75) {
+    situacaoCalculada = 'REPROVADO';
+   motivo = 'Frequência abaixo de 75%';
+  } else if (mediaCalculada >= 7) {
+  situacaoCalculada = 'APROVADO';
+  motivo = '';
+  } else if (mediaCalculada >= 5) {
+  situacaoCalculada = 'RECUPERAÇÃO';
+  motivo = '';
+  } else {
+  situacaoCalculada = 'REPROVADO';
+  motivo = 'Média abaixo de 5';
+  }
+
+
 
     setState(() {
       nomeAluno = nome;
       media = mediaCalculada;
       situacao = situacaoCalculada;
+      maiorNota = maiorNotaCalculada;
+      menorNota = menorNotaCalculada;
+      pontosFaltantes = pontosFaltantesCalculados;
+      frequencia = frequenciaAluno;
     });
 
 
@@ -111,6 +146,8 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
       nomeAluno = '';
       media = 0;
       situacao = '';
+      maiorNota = 0;
+      menorNota = 0;
     });
   }
 
@@ -219,6 +256,24 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
 
             const SizedBox(height: 20,),
 
+            const SizedBox(height: 15),
+
+             TextField(
+                controller: frequenciaController,
+                decoration: const InputDecoration(
+                labelText: 'Frequência',
+                hintText: 'Digite a frequência de 0 a 100%',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.calendar_today),
+                suffixText: '%',
+                  ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             ElevatedButton.icon(
               onPressed: calcularMedia, 
               icon: const Icon(Icons.calculate),
@@ -258,8 +313,41 @@ class _MediaEscolarPageState extends State<MediaEscolarPage>{
                       const SizedBox(height: 10,),
 
                       Text(
-                        situacao,
+                         'Maior nota: ${maiorNota.toStringAsFixed(1)}',
                         style: const TextStyle(
+                        fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+
+                      Text(
+                         'Menor nota: ${menorNota.toStringAsFixed(1)}',
+                        style: const TextStyle(
+                        fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+
+                      if (media < 7)
+                      Text(
+                          'Pontos que faltaram para aprovação: ${pontosFaltantes.toStringAsFixed(1)}',
+                        style: const TextStyle(
+                        fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      Text(
+                        'Frequência: ${frequencia.toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                        fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      Text(
+                        situacao,
+                          style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold
                         ),

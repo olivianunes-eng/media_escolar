@@ -45,10 +45,10 @@ O sistema deverá calcular a média e mostrar:
 ### Desafio
 
 - [X] Adicionar uma quarta nota
-- [ ] Mostrar a maior nota
-- [ ] Mostrar a menor nota
-- [ ] Informar quantos pontos faltaram para aprovação
-- [ ] Adicionar um campo para frequência
+- [x] Mostrar a maior nota
+- [x] Mostrar a menor nota
+- [x] Informar quantos pontos faltaram para aprovação
+- [x] Adicionar um campo para frequência
 - [ ] Reprovar o aluno que tiver frequência menor que 75%
 
 
